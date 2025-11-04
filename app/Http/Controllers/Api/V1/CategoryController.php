@@ -4,15 +4,20 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CategoryController extends Controller
 {
+    use ApiResponse;
     public function index()
     {
         $categories = Category::with('SubCategories')->paginate(5);
-        return response()->json($categories);
+        if (!$categories) {
+            return $this->errorResponse('No categories found', 404);
+        }
+        return $this->successResponse($categories);
     }
 
     public function store(Request $request)
@@ -21,13 +26,13 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $category = Category::create($validated);
-        return response()->json(['message' => 'Category created', 'data' => $category], 201);
+        return $this->successResponse($category, 'Category created', 201);
     }
 
     public function show($id)
     {
         $category = Category::with('SubCategories')->findOrFail($id);
-        return response()->json($category);
+        return $this->successResponse($category);
     }
 
     public function update(Request $request, $id)
@@ -35,13 +40,13 @@ class CategoryController extends Controller
         $validated = $request->validate(['name' => 'required|string|max:255']);
         $category = Category::findOrFail($id);
         $category->update($validated);
-        return response()->json(['message' => 'Category updated', 'data' => $category]);
+        return $this->successResponse($category, 'Category updated');
     }
 
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
         $category->delete();
-        return response()->json(['message' => 'Category deleted']);
+        return $this->successResponse(null, 'Category deleted');
     }
 }
