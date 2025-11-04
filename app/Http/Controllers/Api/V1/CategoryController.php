@@ -17,50 +17,31 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-            ]);
-
-            $category = Category::create($validated);
-            return response()->json(['message' => 'Category created', 'data' => $category], 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $category = Category::create($validated);
+        return response()->json(['message' => 'Category created', 'data' => $category], 201);
     }
 
     public function show($id)
     {
-        try {
-            $category = Category::with('SubCategories')->findOrFail($id);
-            return response()->json($category);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Category not found'], 404);
-        }
+        $category = Category::with('SubCategories')->findOrFail($id);
+        return response()->json($category);
     }
 
     public function update(Request $request, $id)
     {
-        try {
-            $validated = $request->validate(['name' => 'required|string|max:255']);
-            $category = Category::findOrFail($id);
-            $category->update($validated);
-            return response()->json(['message' => 'Category updated', 'data' => $category]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Category not found'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+        $validated = $request->validate(['name' => 'required|string|max:255']);
+        $category = Category::findOrFail($id);
+        $category->update($validated);
+        return response()->json(['message' => 'Category updated', 'data' => $category]);
     }
 
     public function destroy($id)
     {
-        try {
-            $category = Category::findOrFail($id);
-            $category->delete();
-            return response()->json(['message' => 'Category deleted']);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Category not found'], 404);
-        }
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return response()->json(['message' => 'Category deleted']);
     }
 }

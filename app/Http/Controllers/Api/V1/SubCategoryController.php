@@ -17,55 +17,35 @@ class SubCategoryController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'parent_category_id' => 'required|exists:categories,id',
-            ]);
-
-            $subcategory = SubCategory::create($validated);
-            return response()->json(['message' => 'SubCategory created', 'data' => $subcategory], 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_category_id' => 'required|exists:categories,id',
+        ]);
+        $subcategory = SubCategory::create($validated);
+        return response()->json(['message' => 'SubCategory created', 'data' => $subcategory], 201);
     }
 
     public function show($id)
     {
-        try {
-            $subcategory = SubCategory::with('category')->findOrFail($id);
-            return response()->json($subcategory);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'SubCategory not found'], 404);
-        }
+        $subcategory = SubCategory::with('category')->findOrFail($id);
+        return response()->json($subcategory);
     }
 
     public function update(Request $request, $id)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'parent_category_id' => 'required|exists:categories,id',
-            ]);
-
-            $subcategory = SubCategory::findOrFail($id);
-            $subcategory->update($validated);
-            return response()->json(['message' => 'SubCategory updated', 'data' => $subcategory]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'SubCategory not found'], 404);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_category_id' => 'required|exists:categories,id',
+        ]);
+        $subcategory = SubCategory::findOrFail($id);
+        $subcategory->update($validated);
+        return response()->json(['message' => 'SubCategory updated', 'data' => $subcategory]);
     }
 
     public function destroy($id)
     {
-        try {
-            $subcategory = SubCategory::findOrFail($id);
-            $subcategory->delete();
-            return response()->json(['message' => 'SubCategory deleted']);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'SubCategory not found'], 404);
-        }
+        $subcategory = SubCategory::findOrFail($id);
+        $subcategory->delete();
+        return response()->json(['message' => 'SubCategory deleted']);
     }
 }
