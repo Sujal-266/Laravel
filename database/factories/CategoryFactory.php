@@ -9,19 +9,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CategoryFactory extends Factory
 {
-    protected static $categories = [
-        'Electronics', 'Fashion', 'Books', 'Furniture'
-    ];
-
-    protected static $index = 0;
     public function definition(): array
     {
         
-        $name = self::$categories[self::$index % count(self::$categories)];
-        self::$index++;
-
         return [
-            'name' => $name,
+            'name' => ucfirst($this->faker->unique()->word()),
         ];
     }
 }
