@@ -19,9 +19,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-        CategorySeeder::class,
-        SubCategorySeeder::class,
-    ]);
+        Category::factory(100)->create();
+        SubCategory::factory(300)->create();
     }
 }
