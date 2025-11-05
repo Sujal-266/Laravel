@@ -10,16 +10,19 @@ use App\Models\Category;
  */
 class SubCategoryFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+     protected static $index = 1;
     public function definition(): array
     {
+        $subNames = [
+            'Mobiles', 'Laptops', 'Headphones', 'Smartwatches', 'Cameras',
+            'Shirts', 'Pants', 'Shoes', 'Watches', 'Bags',
+            'Fiction', 'Comics', 'Novels', 'Magazines', 'Journals',
+            'Sofas', 'Tables', 'Chairs', 'Beds', 'Cupboards'
+        ];
+
         return [
-            'name' => $this->faker->word(),
-            'parent_category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(), 
+            'name' => $subNames[self::$index++ - 1] ?? $this->faker->word(),
+            'parent_category_id' => null, // will be set in seeder
         ];
     }
 }

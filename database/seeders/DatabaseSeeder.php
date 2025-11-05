@@ -19,7 +19,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory(100)->create();
-        SubCategory::factory(300)->create();
+        $categories = Category::factory(4)->create();
+
+        $subNames = [
+            // Electronics
+            ['Mobiles', 'Laptops', 'Headphones', 'Smartwatches', 'Cameras'],
+            // Fashion
+            ['Shirts', 'Pants', 'Shoes', 'Watches', 'Bags'],
+            // Books
+            ['Fiction', 'Comics', 'Novels', 'Magazines', 'Journals'],
+            // Furniture
+            ['Sofas', 'Tables', 'Chairs', 'Beds', 'Cupboards'],
+        ];
+
+        foreach ($categories as $index => $category) {
+            foreach ($subNames[$index] as $sub) {
+                SubCategory::create([
+                    'name' => $sub,
+                    'parent_category_id' => $category->id,
+                ]);
+            }
+        }       
     }
 }

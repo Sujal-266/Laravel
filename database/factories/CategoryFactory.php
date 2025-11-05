@@ -9,15 +9,19 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CategoryFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected static $categories = [
+        'Electronics', 'Fashion', 'Books', 'Furniture'
+    ];
+
+    protected static $index = 0;
     public function definition(): array
     {
+        
+        $name = self::$categories[self::$index % count(self::$categories)];
+        self::$index++;
+
         return [
-            'name' => $this->faker->unique()->word(), // random unique category name
+            'name' => $name,
         ];
     }
 }
