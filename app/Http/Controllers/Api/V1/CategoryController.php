@@ -18,32 +18,32 @@ class CategoryController extends Controller
         if (!$categories) {
             return $this->errorResponse('No categories found', 404);
         }
-        return $this->successResponse($categories);
+        return $this->successResponse($categories,__('messages.categories_fetched_successfully'));
     }
 
     public function store(CategoryRequest $request)
     {
         $category = Category::create($request->validated());
-        return $this->successResponse($category, 'Category created', 201);
+        return $this->successResponse($category, __('messages.category_created'), 201);
     }
 
     public function show($id)
     {
         $category = Category::with('SubCategories')->findOrFail($id);
-        return $this->successResponse($category, 'Category fetched successfully');
+        return $this->successResponse($category, __('messages.category_fetched_successfully'));
     }
 
     public function update(CategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
         $category->update($request->validated());
-        return $this->successResponse($category, 'Category updated');
+        return $this->successResponse($category, __('messages.category_updated'));
     }
 
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
         $category->delete();
-        return $this->successResponse(null, 'Category deleted');
+        return $this->successResponse(null, __('messages.category_deleted'));
     }
 }

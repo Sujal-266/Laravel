@@ -14,32 +14,32 @@ class SubCategoryController extends Controller
     public function index()
     {
         $subcategories = SubCategory::with('category')->paginate(5);
-        return response()->json($subcategories);
+        return response()->json($subcategories, __('messages.subcategories_fetched_successfully'));
     }
 
     public function store(SubCategoryRequest $request)
     {
         $subcategory = SubCategory::create($request->validated());
-        return response()->json(['message' => 'SubCategory created', 'data' => $subcategory], 201);
+        return response()->json(['message' => __('messages.subcategory_created'), 'data' => $subcategory], 201);
     }
 
     public function show($id)
     {
         $subcategory = SubCategory::with('category')->findOrFail($id);
-        return response()->json($subcategory);
+        return response()->json($subcategory, __('messages.subcategory_fetched_successfully'));
     }
 
     public function update(SubCategoryRequest $request, $id)
     {
         $subcategory = SubCategory::findOrFail($id);
         $subcategory->update($request->validated());
-        return response()->json(['message' => 'SubCategory updated', 'data' => $subcategory]);
+        return response()->json(['message' => __('messages.subcategory_updated'), 'data' => $subcategory]);
     }
 
     public function destroy($id)
     {
         $subcategory = SubCategory::findOrFail($id);
         $subcategory->delete();
-        return response()->json(['message' => 'SubCategory deleted']);
+        return response()->json(['message' => __('messages.subcategory_deleted')]);
     }
 }
