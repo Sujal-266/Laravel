@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\CategoryRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CategoryController extends Controller
@@ -20,26 +21,22 @@ class CategoryController extends Controller
         return $this->successResponse($categories);
     }
 
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-        $category = Category::create($validated);
+        $category = Category::create($request->validated());
         return $this->successResponse($category, 'Category created', 201);
     }
 
     public function show($id)
     {
         $category = Category::with('SubCategories')->findOrFail($id);
-        return $this->successResponse($category);
+        return $this->successResponse($category, 'Category fetched successfully');
     }
 
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        $validated = $request->validate(['name' => 'required|string|max:255']);
         $category = Category::findOrFail($id);
-        $category->update($validated);
+        $category->update($request->validated());
         return $this->successResponse($category, 'Category updated');
     }
 

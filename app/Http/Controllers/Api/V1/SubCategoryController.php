@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\SubCategory;
 use App\Traits\ApiResponse;
+use App\Http\Requests\SubCategoryRequest;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -16,13 +17,9 @@ class SubCategoryController extends Controller
         return response()->json($subcategories);
     }
 
-    public function store(Request $request)
+    public function store(SubCategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_category_id' => 'required|exists:categories,id',
-        ]);
-        $subcategory = SubCategory::create($validated);
+        $subcategory = SubCategory::create($request->validated());
         return response()->json(['message' => 'SubCategory created', 'data' => $subcategory], 201);
     }
 
@@ -32,14 +29,10 @@ class SubCategoryController extends Controller
         return response()->json($subcategory);
     }
 
-    public function update(Request $request, $id)
+    public function update(SubCategoryRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_category_id' => 'required|exists:categories,id',
-        ]);
         $subcategory = SubCategory::findOrFail($id);
-        $subcategory->update($validated);
+        $subcategory->update($request->validated());
         return response()->json(['message' => 'SubCategory updated', 'data' => $subcategory]);
     }
 
