@@ -14,5 +14,9 @@ return [
 	'register_success' => 'વપરાશકર્તા સફળતાપૂર્વક નોંધાયો.',
 	'login_success' => 'લૉગિન સફળતાપૂર્વક થયું.',
 	'logout_success' => 'લૉગઆઉટ સફળતાપૂર્વક થયું.',
-	'invalid_credentials' => 'અમાન્ય ઇમેઇલ અથવા પાસવર્ડ.'
+	'invalid_credentials' => 'અમાન્ય ઇમેઇલ અથવા પાસવર્ડ.',
+	'email_required' => 'ઇમેઇલ ફિલ્ડ જરૂરી છે.',
+	'email_invalid' => 'ઇમેઇલ સરનામું માન્ય હોવું જોઈએ.',
+	'password_required' => 'પાસવર્ડ ફિલ્ડ જરૂરી છે.',
+	'password_min' => 'પાસવર્ડ ઓછામાં ઓછા :min અક્ષરો હોવો જોઈએ.',
 ];

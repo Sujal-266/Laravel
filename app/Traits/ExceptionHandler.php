@@ -19,40 +19,27 @@ trait ExceptionHandler
      */
     public static function handleApiException(Exceptions $exceptions)
     {
-        // Only apply for API requests
-        if (request()->is('api/*')) {
-            $exceptions->render(function (ValidationException $e) {
-                return ApiResponse::errorResponse('Validation failed', 422);
-            });
-
-            $exceptions->render(function (ModelNotFoundException $e) {
-                return ApiResponse::errorResponse('Resource not found', 404);
-            });
-
-            $exceptions->render(function (NotFoundHttpException $e) {
-                // If this 404 came from missing model (implicit binding), say "Resource not found"
-                if ($e->getPrevious() instanceof ModelNotFoundException) {
-                    return ApiResponse::errorResponse('Resource not found', 404);
-                }
-
-                // Real missing route
-                return ApiResponse::errorResponse('Endpoint not found', 404);
-            });
-
-            $exceptions->render(function (MethodNotAllowedHttpException $e) {
-                return ApiResponse::errorResponse('Method not allowed', 405);
-            });
-
-            $exceptions->render(function (AuthenticationException $e) {
-                return ApiResponse::errorResponse('Unauthenticated', 401);
-            });
-
+        if (request()->is('*api*')) {
             $exceptions->render(function (QueryException $e) {
-                return ApiResponse::errorResponse('Database query error', 500);
+                return ApiResponse::errorResponse($e->getMessage());
             });
-
+            $exceptions->render(function (ValidationException $e) {
+                return ApiResponse::errorResponse($e->getMessage());
+            });
+            $exceptions->render(function (ModelNotFoundException $e) {
+                return ApiResponse::errorResponse($e->getMessage(), 404);
+            });
+            $exceptions->render(function (AuthenticationException $e) {
+                return ApiResponse::errorResponse($e->getMessage(), 401);
+            });
+            $exceptions->render(function (MethodNotAllowedHttpException $e) {
+                return ApiResponse::errorResponse($e->getMessage(), 405);
+            });
+            $exceptions->render(function (NotFoundHttpException $e) {
+                return ApiResponse::errorResponse($e->getMessage(), 404);
+            });
             $exceptions->render(function (HttpException $e) {
-                return ApiResponse::errorResponse('Validation failed', 422);
+                return ApiResponse::errorResponse($e->getMessage());
             });
         }
     }
