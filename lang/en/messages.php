@@ -11,4 +11,8 @@ return [
     'subcategory_updated' => 'Subcategory updated successfully!',
     'subcategory_deleted' => 'Subcategory deleted successfully!',
     'subcategory_not_found' => 'Subcategory not found.',
+    'register_success' => 'User registered successfully.',
+    'login_success' => 'Login successful.',
+    'logout_success' => 'Logout successful.',
+    'invalid_credentials' => 'Invalid email or password.',
 ];

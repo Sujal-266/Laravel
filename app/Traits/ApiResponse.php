@@ -15,11 +15,16 @@ trait ApiResponse
         ], $code);
     }
 
-    public static function errorResponse($message, $code): JsonResponse
+    public static function errorResponse($message = 'Error', $code = 400, $errors = null): JsonResponse
     {
-        return response()->json([
-            'status' => false,
+        $payload = [
+            'status'  => false,
             'message' => $message,
-            ], $code);
+        ];
+        if (!is_null($errors)) {
+            $payload['errors'] = $errors;   // <-- include field-wise errors
         }
+
+        return response()->json($payload, $code);
+    }
 }
