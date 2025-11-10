@@ -19,4 +19,6 @@ return [
     'login_success' => 'Login successful.',
     'logout_success' => 'Logout successful.',
     'invalid_credentials' => 'Invalid email or password.',
+    'file_uploaded_successfully' => 'File uploaded successfully.',
+    'file_deleted_successfully' => 'File deleted successfully.',
 ];
