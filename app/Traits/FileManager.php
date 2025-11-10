@@ -24,6 +24,11 @@ trait FileManager
         }
     }
 
+    public function replaceFile($oldFilePath, $newFile, string $folder_path){
+        $this->deleteFile($oldFilePath);
+        return $this->saveFile($newFile, $folder_path);
+    }
+
 
 }
 

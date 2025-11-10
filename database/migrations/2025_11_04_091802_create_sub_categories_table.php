@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('parent_category_id');
             $table->string('name');
+            $table->string('sub_category_image')->nullable(false);
             $table->timestamps();
 
             $table->foreign('parent_category_id')
