@@ -8,13 +8,8 @@ use Illuminate\Support\Facades\Storage;
 trait FileManager
 {
     public function saveFile($file, string $folder_path){
-        $filename = Str::random(10);
-        $extension = $file->getClientOriginalExtension();
-        while (Storage::disk('public')->exists("{$folder_path}/{$filename}.{$extension}")) {
-            $filename = Str::random(10);
-        }
-        Storage::disk('public')->put("{$folder_path}/{$filename}.{$extension}", file_get_contents($file->getRealPath()));
-        $path = "{$folder_path}/{$filename}.{$extension}";
+        $filename = Str::random(10) . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs($folder_path, $filename, 'public');
         return $path;
     }
 
@@ -25,7 +20,9 @@ trait FileManager
     }
 
     public function replaceFile($oldFilePath, $newFile, string $folder_path){
-        $this->deleteFile($oldFilePath);
+        if ($oldFilePath) {
+            $this->deleteFile($oldFilePath);
+        }
         return $this->saveFile($newFile, $folder_path);
     }
 

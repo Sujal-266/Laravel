@@ -16,4 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('users/logout', [AuthController::class, 'logout']);
     Route::post('files/upload', [FileController::class, 'uploadFile']);
     Route::delete('files/delete', [FileController::class, 'fileDestroy']);
+    Route::post('categories/update/{id}', [CategoryController::class, 'update']);
+    Route::post('subcategories/update/{id}', [SubCategoryController::class, 'update']);
+
 });

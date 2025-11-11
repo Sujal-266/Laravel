@@ -44,39 +44,36 @@ class CategoryController extends Controller
     }
 
     public function update(Request $request, $id){
-    $category = Category::findOrFail($id);
-    Log::info('Category update request data:', $request->all());
-    Log::info('Category current data:', $category->toArray());
+        $category = Category::findOrFail($id);
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'category_image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    $request->validate([
-        'name' => 'sometimes|string|max:255',
-        'category_image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+        $updated = false;
 
-    $updated = false;
+        // Update name if provided
+        if ($request->filled('name') && $request->name !== $category->name) {
+            $category->name = $request->name;
+            $updated = true;
+        }
 
-    // Update name if provided
-    if ($request->filled('name') && $request->name !== $category->name) {
-        $category->name = $request->name;
-        $updated = true;
+        // Update image if provided
+        if ($request->hasFile('category_image')) {
+            $oldPath = $category->category_image ? str_replace('/storage/app/public/categories', '', $category->category_image) : null;
+            $filePath = $this->replaceFile($oldPath, $request->file('category_image'), 'categories');
+            $category->category_image = Storage::url($filePath);
+            $updated = true;
+        }
+
+        if (!$updated) {
+            return $this->errorResponse(__('messages.nothing_to_update'), 400);
+        }
+
+        $category->save();
+
+        return $this->successResponse($category, __('messages.category_updated'));
     }
-
-    // Update image if provided
-    if ($request->hasFile('category_image')) {
-        $oldPath = $category->category_image ? str_replace('/storage/', '', $category->category_image) : null;
-        $filePath = $this->replaceFile($oldPath, $request->file('category_image'), 'categories');
-        $category->category_image = Storage::url($filePath);
-        $updated = true;
-    }
-
-    if (!$updated) {
-        return $this->errorResponse(__('messages.nothing_to_update'), 400);
-    }
-
-    $category->save();
-
-    return $this->successResponse($category, __('messages.category_updated'));
-}
 
     public function destroy($id)
     {
