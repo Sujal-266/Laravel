@@ -14,6 +14,7 @@ class CategoryFactory extends Factory
         return [
             'name' => ucfirst($this->faker->unique()->word()),
             'category_image' => $this->faker->imageUrl(640, 480, 'food', true, 'Category'),
+            'user_id' => \App\Models\User::factory(),
         ];
     }
 }

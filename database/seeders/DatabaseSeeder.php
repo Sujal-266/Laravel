@@ -23,5 +23,10 @@ class DatabaseSeeder extends Seeder
             ->count(4)
             ->has(SubCategory::factory()->count(5), 'subCategories')
             ->create();
+
+            User::factory()
+                ->count(10)
+                ->has(Category::factory()->count(2), 'categories')
+                ->create();
+        }   
     }
-}

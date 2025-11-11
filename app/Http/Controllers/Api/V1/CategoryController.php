@@ -25,7 +25,7 @@ class CategoryController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                ->orWhereHas('SubCategories', function ($subQ) use ($search) {
+                ->orWhereHas('subCategories', function ($subQ) use ($search) {
                     $subQ->where('name', 'like', '%' . $search . '%');
                 });
             });
@@ -56,6 +56,7 @@ class CategoryController extends Controller
             $filePath = $this->saveFile($request->file('category_image'), 'categories');
             $data['category_image'] = Storage::url($filePath);
         }
+        $data['user_id'] = $request->user()->id;
         $category = Category::create($data);
         return $this->successResponse([$category, $data['category_image']], __('messages.category_created'), 201);
     }
