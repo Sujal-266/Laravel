@@ -18,27 +18,35 @@ class CategoryController extends Controller
     use FileManager;
     public function index(Request $request)
     {
-        $query = Category::with('SubCategories');
+        $query = Category::with(['SubCategories', 'user']);
 
-        //Searching
-        if ($request->filled('search')){
+        // Filter by user_id
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
+        }
+
+        // Searching
+        if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                ->orWhereHas('subCategories', function ($subQ) use ($search) {
-                    $subQ->where('name', 'like', '%' . $search . '%');
-                });
+                  ->orWhereHas('SubCategories', function ($subQ) use ($search) {
+                      $subQ->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('user', function ($userQ) use ($search) {
+                      $userQ->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                  });
             });
         }
 
-        //Sorting
+        // Sorting
         $sortField = $request->input('sort_field', 'id');
         $sortOrder = $request->input('sort_order', 'asc');
-
-        $validSortFields = ['id', 'name'];
+        $validSortFields = ['id', 'name', 'user_id'];
         if (in_array($sortField, $validSortFields)) {
             $query->orderBy($sortField, $sortOrder);
-        } else{
+        } else {
             $query->orderBy('id', 'desc');
         }
 
