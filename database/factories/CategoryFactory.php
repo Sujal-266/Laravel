@@ -11,9 +11,9 @@ class CategoryFactory extends Factory
 {
     public function definition(): array
     {
-        
         return [
             'name' => ucfirst($this->faker->unique()->word()),
+            'category_image' => $this->faker->imageUrl(640, 480, 'food', true, 'Category'),
         ];
     }
 }

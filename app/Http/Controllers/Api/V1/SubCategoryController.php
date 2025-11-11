@@ -15,9 +15,35 @@ class SubCategoryController extends Controller
 {
     use ApiResponse;
     use FileManager;
-    public function index()
+    public function index(Request $request)
     {
-        $subcategories = SubCategory::with('category')->paginate(5);
+        $query = SubCategory::with('category');
+
+        // Searching
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('category', function ($catQ) use ($search) {
+                      $catQ->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Sorting
+        $sortField = $request->input('sort_field', 'id'); // default sort field
+        $sortOrder = $request->input('sort_order', 'desc'); // default sort order
+
+        // Only allow sorting by valid columns
+        $validSortFields = ['id', 'name', 'parent_category_id', 'created_at', 'updated_at'];
+        if (in_array($sortField, $validSortFields)) {
+            $query->orderBy($sortField, $sortOrder);
+        } else {
+            $query->orderBy('id', 'desc'); // Default to latest
+        }
+
+        $subcategories = $query->paginate(5);
+
         return response()->json([
             'status' => true,
             'message' => __('messages.subcategories_fetched_successfully'),

@@ -14,6 +14,8 @@ class SubCategoryFactory extends Factory
     {
         return [
             'name' => ucfirst($this->faker->unique()->word()),
+            'sub_category_image' => $this->faker->imageUrl(640, 480, 'food', true, 'SubCategory'),
+            // 'parent_category_id' will be set by the relationship in the seeder/factory
         ];
     }
 }

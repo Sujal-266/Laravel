@@ -16,14 +16,37 @@ class CategoryController extends Controller
 {
     use ApiResponse;
     use FileManager;
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('SubCategories')->paginate(5);
-        if (!$categories) {
-            return $this->errorResponse('No categories found', 404);
+        $query = Category::with('SubCategories');
+
+        //Searching
+        if ($request->filled('search')){
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                ->orWhereHas('SubCategories', function ($subQ) use ($search) {
+                    $subQ->where('name', 'like', '%' . $search . '%');
+                });
+            });
         }
-        return $this->successResponse($categories,__('messages.categories_fetched_successfully'));
+
+        //Sorting
+        $sortField = $request->input('sort_field', 'id');
+        $sortOrder = $request->input('sort_order', 'asc');
+
+        $validSortFields = ['id', 'name'];
+        if (in_array($sortField, $validSortFields)) {
+            $query->orderBy($sortField, $sortOrder);
+        } else{
+            $query->orderBy('id', 'desc');
+        }
+
+        $categories = $query->paginate(5);
+        return $this->successResponse($categories, __('messages.categories_fetched_successfully'));
     }
+
+
 
     public function store(CategoryRequest $request)
     {
