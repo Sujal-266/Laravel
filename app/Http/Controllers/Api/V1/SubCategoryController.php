@@ -17,7 +17,7 @@ class SubCategoryController extends Controller
     use FileManager;
     public function index(Request $request)
     {
-        $query = SubCategory::with('category');
+        $query = SubCategory::with('category','likers');
 
         // Searching
         if ($request->filled('search')) {
@@ -44,11 +44,7 @@ class SubCategoryController extends Controller
 
         $subcategories = $query->paginate(5);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.subcategories_fetched_successfully'),
-            'data' => $subcategories
-        ], 200);
+        return $this->successResponse($subcategories, __('messages.subcategories_fetched_successfully'));
     }
 
     public function store(SubCategoryRequest $request)
@@ -59,13 +55,13 @@ class SubCategoryController extends Controller
             $data['sub_category_image'] = Storage::url($filePath);
         }
         $subcategory = SubCategory::create($data);
-        return response()->json(['message' => __('messages.subcategory_created'), 'data' => $subcategory], 201);
+        return $this->successResponse($subcategory, __('messages.subcategory_created'), 201);
     }
 
     public function show($id)
     {
-        $subcategories = SubCategory::with('category')->findOrFail($id);
-        return $this->successResponse($subcategories, __('messages.subcategory_fetched_successfully'));
+        $subcategories = SubCategory::with('category','likers')->findOrFail($id);
+        return $this->successResponse(['subcategory' => $subcategories, 'liked_by_user' => $subcategories->likers], __('messages.subcategory_fetched_successfully'));
     }
 
     public function update(Request $request, $id)
@@ -109,5 +105,19 @@ class SubCategoryController extends Controller
             'message' => __('messages.subcategory_deleted'),
             'data' => null
         ], 200);
+    }
+
+    public function like($id)
+    {
+        $subCategory = SubCategory::findOrFail($id);
+        $subCategory->likers()->syncWithoutDetaching([auth()->id()]);
+        return response()->json(['message' => 'SubCategory liked!', 'data' => $subCategory], 200);
+    }
+
+    public function dislike($id)
+    {
+        $subCategory = SubCategory::findOrFail($id);
+        $subCategory->likers()->detach(auth()->id());
+        return response()->json(['message' => 'SubCategory disliked!', 'data' => $subCategory], 200);
     }
 }

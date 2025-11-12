@@ -71,10 +71,9 @@ class CategoryController extends Controller
 
     public function show($id)
     {
-        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+        $category = Category::with(['SubCategories', 'likers',])->findOrFail($id);
         return $this->successResponse([
             'category' => $category,
-            'liked_by' => $category->likers
         ], __('messages.category_fetched_successfully'), 200);
     }
 
@@ -117,17 +116,4 @@ class CategoryController extends Controller
         return $this->successResponse(null, __('messages.category_deleted'));
     }
 
-    public function like($id)
-    {
-        $category = Category::findOrFail($id);
-        $category->likers()->syncWithoutDetaching([auth()->id()]);
-        return $this->successResponse($category, __('messages.category_liked_successfully'), 200);
-    }
-
-    public function dislike($id)
-    {
-        $category = Category::findOrFail($id);
-        $category->likers()->detach(auth()->id());
-        return $this->successResponse($category, __('messages.category_disliked_successfully'), 200);
-    }
 }

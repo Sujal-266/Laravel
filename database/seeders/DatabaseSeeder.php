@@ -19,14 +19,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory()
-            ->count(4)
-            ->has(SubCategory::factory()->count(5), 'subCategories')
+        // Create users
+        User::factory()
+            ->count(10)
             ->create();
 
-            User::factory()
-                ->count(10)
-                ->has(Category::factory()->count(2), 'categories')
+        // Create categories for each user
+        User::all()->each(function ($user) {
+            Category::factory()
+                ->count(3)
+                ->for($user)
+                ->has(SubCategory::factory()->count(5), 'subCategories')
                 ->create();
-        }   
+        });
+
+        $users = User::all();
+        Category::all()->each(function ($category) use ($users) {
+            $category->likers()->sync($users->random(rand(1, 5))->pluck('id')->toArray());
+        });
+        SubCategory::all()->each(function ($subCategory) use ($users) {
+            $subCategory->likers()->sync($users->random(rand(1, 5))->pluck('id')->toArray());
+        });
     }
+}
