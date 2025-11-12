@@ -113,4 +113,16 @@ class CategoryController extends Controller
         $category->delete();
         return $this->successResponse(null, __('messages.category_deleted'));
     }
+
+    public function like($id){
+        $category = Category::findOrFail($id);
+        $category->increment('likes');
+        return $this->successResponse($category, __('messages.category_liked_successfully'));
+    }
+
+    public function dislike($id){
+        $category = Category::findOrFail($id);
+        $category->increment('dislikes');
+        return $this->successResponse($category, __('messages.category_disliked_successfully'));
+    }
 }

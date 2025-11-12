@@ -21,4 +21,6 @@ return [
     'invalid_credentials' => 'Invalid email or password.',
     'file_uploaded_successfully' => 'File uploaded successfully.',
     'file_deleted_successfully' => 'File deleted successfully.',
+    'category_liked_successfully' => 'Category liked successfully.',
+    'category_disliked_successfully' => 'Category disliked successfully.',
 ];
