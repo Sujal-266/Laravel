@@ -11,6 +11,18 @@ class Category extends Model
     use HasFactory;
     protected $fillable = ['name', 'category_image', 'user_id', 'likes', 'dislikes'];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('is_liked', function ($query) {
+            $user = auth()->user();
+            if ($user) {
+                $query->withExists(['likers as is_liked' => function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                }]);
+            }
+        });
+    } 
+
     public function subCategories()
     {
         return $this->hasMany(SubCategory::class, 'parent_category_id');
@@ -47,4 +59,10 @@ class Category extends Model
     {
         return $this->dislikes > $this->likes;
     }
+
+    public function likers(){
+        return $this->belongsToMany(User::class, 'category_user_likes');
+    }
+
+
 }
