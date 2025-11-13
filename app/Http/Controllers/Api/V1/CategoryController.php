@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Traits\ApiResponse;
 use App\Traits\FileManager;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use App\Http\Requests\CategoryRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,9 +14,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
+    // ...existing code...
 {
-    use ApiResponse;
-    use FileManager;
+    use ApiResponse, FileManager, AuthorizesRequests;
     public function index(Request $request)
     {
         $query = Category::with(['SubCategories', 'user']);
@@ -58,9 +59,9 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request)
     {
+    $this->authorize('create', Category::class);
         $data = $request->validated();
         if ($request->hasFile('category_image')) {
-
             $filePath = $this->saveFile($request->file('category_image'), 'categories');
             $data['category_image'] = Storage::url($filePath);
         }
@@ -71,15 +72,31 @@ class CategoryController extends Controller
 
     public function show($id)
     {
-        $category = Category::with(['SubCategories', 'likers',])->findOrFail($id);
+        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+        $user = auth()->user();
+        $is_liked = false;
+        $is_disliked = false;
+        if ($user) {
+            $pivot = $category->likers->where('id', $user->id)->first();
+            if ($pivot && $pivot->pivot->type === 'like') {
+                $is_liked = true;
+            } elseif ($pivot && $pivot->pivot->type === 'dislike') {
+                $is_disliked = true;
+            }
+        }
         return $this->successResponse([
             'category' => $category,
+            'likes_count' => $category->likers->where('pivot.type', 'like')->count(),
+            'dislikes_count' => $category->likers->where('pivot.type', 'dislike')->count(),
+            'is_liked' => $is_liked,
+            'is_disliked' => $is_disliked,
         ], __('messages.category_fetched_successfully'), 200);
     }
 
     public function update(Request $request, $id)
     {
         $category = Category::findOrFail($id);
+        $this->authorize('update', $category);
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'category_image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
@@ -109,11 +126,44 @@ class CategoryController extends Controller
         return $this->successResponse($category, __('messages.category_updated'), 200);
     }
 
-    public function destroy($id)
-    {
+    public function destroy($id){
         $category = Category::findOrFail($id);
+        $this->authorize('delete', $category);
         $category->delete();
         return $this->successResponse(null, __('messages.category_deleted'));
     }
 
+    public function like($id)
+    {
+        $category = Category::findOrFail($id);
+        $user = auth()->user();
+        $this->authorize('like', $category);
+        $category->likers()->detach($user->id); // Remove any previous like/dislike
+        $category->likers()->attach($user->id, ['type' => 'like']);
+        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+        return $this->successResponse([
+            'category' => $category,
+            'likes_count' => $category->likers->where('pivot.type', 'like')->count(),
+            'dislikes_count' => $category->likers->where('pivot.type', 'dislike')->count(),
+            'is_liked' => true,
+            'is_disliked' => false,
+        ], __('messages.category_liked_successfully'), 200);
+    }
+
+    public function dislike($id)
+    {
+        $category = Category::findOrFail($id);
+        $user = auth()->user();
+        $this->authorize('dislike', $category);
+        $category->likers()->detach($user->id); // Remove any previous like/dislike
+        $category->likers()->attach($user->id, ['type' => 'dislike']);
+        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+        return $this->successResponse([
+            'category' => $category,
+            'likes_count' => $category->likers->where('pivot.type', 'like')->count(),
+            'dislikes_count' => $category->likers->where('pivot.type', 'dislike')->count(),
+            'is_liked' => false,
+            'is_disliked' => true,
+        ], __('messages.category_disliked_successfully'), 200);
+    }
 }

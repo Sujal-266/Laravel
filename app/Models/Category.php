@@ -28,7 +28,7 @@ class Category extends Model
     }
 
     public function likers(){
-        return $this->belongsToMany(User::class, 'category_user_likes');
+        return $this->belongsToMany(User::class, 'category_user_likes')->withPivot('type');
     }
 
 

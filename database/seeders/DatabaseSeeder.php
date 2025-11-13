@@ -19,10 +19,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create users
-        User::factory()
-            ->count(10)
-            ->create();
+        // Create at least one Admin and one User
+        User::factory()->create(['role' => 'Admin']);
+        User::factory()->create(['role' => 'User']);
+        // Create the rest randomly
+        User::factory()->count(8)->create();
 
         // Create categories for each user
         User::all()->each(function ($user) {
@@ -38,7 +39,7 @@ class DatabaseSeeder extends Seeder
             $category->likers()->sync($users->random(rand(1, 5))->pluck('id')->toArray());
         });
         SubCategory::all()->each(function ($subCategory) use ($users) {
-            $subCategory->likers()->sync($users->random(rand(1, 5))->pluck('id')->toArray());
+            // Removed subcategory likers sync
         });
     }
 }

@@ -18,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('files/delete', [FileController::class, 'fileDestroy']);
     Route::post('categories/update/{id}', [CategoryController::class, 'update']);
     Route::post('subcategories/update/{id}', [SubCategoryController::class, 'update']);
+    Route::post('category/like/{id}', [CategoryController::class, 'like']);
+    Route::post('category/dislike/{id}', [CategoryController::class, 'dislike']);
 });

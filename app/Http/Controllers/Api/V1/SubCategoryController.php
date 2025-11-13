@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SubCategory;
 use App\Traits\ApiResponse;
 use App\Traits\FileManager;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\SubCategoryRequest;
 use Illuminate\Http\Request;
@@ -13,11 +14,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SubCategoryController extends Controller
 {
-    use ApiResponse;
-    use FileManager;
+    use ApiResponse, FileManager, AuthorizesRequests;
     public function index(Request $request)
     {
-        $query = SubCategory::with('category','likers');
+        $query = SubCategory::with('category');
 
         // Searching
         if ($request->filled('search')) {
@@ -50,6 +50,7 @@ class SubCategoryController extends Controller
     public function store(SubCategoryRequest $request)
     {
         $data = $request->validated();
+        $this->authorize('create', SubCategory::class);
         if ($request->hasFile('sub_category_image')) {
             $filePath = $this->saveFile($request->file('sub_category_image'), 'subcategories');
             $data['sub_category_image'] = Storage::url($filePath);
@@ -60,17 +61,18 @@ class SubCategoryController extends Controller
 
     public function show($id)
     {
-        $subcategories = SubCategory::with('category','likers')->findOrFail($id);
-        return $this->successResponse(['subcategory' => $subcategories, 'liked_by_user' => $subcategories->likers], __('messages.subcategory_fetched_successfully'));
+        $subcategory = SubCategory::with('category')->findOrFail($id);
+        return $this->successResponse(['subcategory' => $subcategory], __('messages.subcategory_fetched_successfully'));
     }
 
     public function update(Request $request, $id)
     {
         $subcategory = SubCategory::findOrFail($id);
+        $this->authorize('update', $subcategory);
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'category_id' => 'sometimes|exists:categories,id',
-            'subcategory_image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'sub_category_image' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
         ]);
         $updated = false;
         // Update name if provided
@@ -99,6 +101,7 @@ class SubCategoryController extends Controller
     public function destroy($id)
     {
         $subcategory = SubCategory::findOrFail($id);
+        $this->authorize('delete', $subcategory);
         $subcategory->delete();
         return response()->json([
             'status' => true,
@@ -107,17 +110,4 @@ class SubCategoryController extends Controller
         ], 200);
     }
 
-    public function like($id)
-    {
-        $subCategory = SubCategory::findOrFail($id);
-        $subCategory->likers()->syncWithoutDetaching([auth()->id()]);
-        return response()->json(['message' => 'SubCategory liked!', 'data' => $subCategory], 200);
-    }
-
-    public function dislike($id)
-    {
-        $subCategory = SubCategory::findOrFail($id);
-        $subCategory->likers()->detach(auth()->id());
-        return response()->json(['message' => 'SubCategory disliked!', 'data' => $subCategory], 200);
-    }
 }
