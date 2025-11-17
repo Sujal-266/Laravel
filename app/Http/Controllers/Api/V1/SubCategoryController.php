@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\SubCategoryRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SubCategoryController extends Controller
@@ -62,7 +63,18 @@ class SubCategoryController extends Controller
     public function show($id)
     {
         $subcategory = SubCategory::with('category')->findOrFail($id);
-        return $this->successResponse(['subcategory' => $subcategory], __('messages.subcategory_fetched_successfully'));
+        $user = Auth::user();
+        $likesCount = $subcategory->likes()->where('type', 'like')->count();
+        $dislikesCount = $subcategory->likes()->where('type', 'dislike')->count();
+        $isLiked = $user ? $subcategory->likes()->where('user_id', $user->id)->where('type', 'like')->exists() : false;
+        $isDisliked = $user ? $subcategory->likes()->where('user_id', $user->id)->where('type', 'dislike')->exists() : false;
+        return $this->successResponse([
+            'subcategory' => $subcategory,
+            'likes_count' => $likesCount,
+            'dislikes_count' => $dislikesCount,
+            'is_liked' => $isLiked,
+            'is_disliked' => $isDisliked,
+        ], __('messages.subcategory_fetched_successfully'));
     }
 
     public function update(Request $request, $id)
@@ -110,4 +122,63 @@ class SubCategoryController extends Controller
         ], 200);
     }
 
+    // Like a subcategory (polymorphic)
+    public function like($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+        $subcategory = SubCategory::findOrFail($id);
+        $this->authorize('like', $subcategory);
+        $subcategory->likes()->where('user_id', $user->id)->where('type', 'dislike')->delete();
+        $like = $subcategory->likes()->where('user_id', $user->id)->where('type', 'like')->first();
+        if (!$like) {
+            $subcategory->likes()->create([
+                'user_id' => $user->id,
+                'type' => 'like',
+            ]);
+        }
+        $likesCount = $subcategory->likes()->where('type', 'like')->count();
+        $dislikesCount = $subcategory->likes()->where('type', 'dislike')->count();
+        $isLiked = $subcategory->likes()->where('user_id', $user->id)->where('type', 'like')->exists();
+        $isDisliked = $subcategory->likes()->where('user_id', $user->id)->where('type', 'dislike')->exists();
+        return $this->successResponse([
+            'id' => $subcategory->id,
+            'likes_count' => $likesCount,
+            'dislikes_count' => $dislikesCount,
+            'is_liked' => $isLiked,
+            'is_disliked' => $isDisliked,
+        ], __('messages.subcategory_liked'), 200);
+    }         
+
+    // Dislike a subcategory (polymorphic)
+    public function dislike($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+        $subcategory = SubCategory::findOrFail($id);
+        $this->authorize('dislike', $subcategory);
+        $subcategory->likes()->where('user_id', $user->id)->where('type', 'like')->delete();
+        $dislike = $subcategory->likes()->where('user_id', $user->id)->where('type', 'dislike')->first();
+        if (!$dislike) {
+            $subcategory->likes()->create([
+                'user_id' => $user->id,
+                'type' => 'dislike',    
+            ]);
+        }
+        $likesCount = $subcategory->likes()->where('type', 'like')->count();
+        $dislikesCount = $subcategory->likes()->where('type', 'dislike')->count();
+        $isLiked = $subcategory->likes()->where('user_id', $user->id)->where('type', 'like')->exists();
+        $isDisliked = $subcategory->likes()->where('user_id', $user->id)->where('type', 'dislike')->exists();
+        return $this->successResponse([
+            'id' => $subcategory->id,
+            'likes_count' => $likesCount,
+            'dislikes_count' => $dislikesCount,
+            'is_liked' => $isLiked,
+            'is_disliked' => $isDisliked,
+        ], __('messages.subcategory_disliked'), 200);
+    }
 }

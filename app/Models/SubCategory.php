@@ -16,5 +16,20 @@ class SubCategory extends Model
         return $this->belongsTo(Category::class, 'parent_category_id');
     }
 
+    public function likers(){
+        return $this->morphedByMany(
+            User::class,
+            'likeable',
+            'likes',
+            'likeable_id',
+            'user_id',
+        );
+    }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
 }
 

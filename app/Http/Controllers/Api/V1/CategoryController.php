@@ -12,6 +12,8 @@ use App\Http\Requests\CategoryRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Like;
 
 class CategoryController extends Controller
     // ...existing code...
@@ -133,37 +135,71 @@ class CategoryController extends Controller
         return $this->successResponse(null, __('messages.category_deleted'));
     }
 
+    // Like a category (polymorphic)
     public function like($id)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
         $category = Category::findOrFail($id);
-        $user = auth()->user();
         $this->authorize('like', $category);
-        $category->likers()->detach($user->id); // Remove any previous like/dislike
-        $category->likers()->attach($user->id, ['type' => 'like']);
-        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+
+        $category->likes()->where('user_id', $user->id)->where('type', 'dislike')->delete();
+
+        $like = $category->likes()->where('user_id', $user->id)->where('type', 'like')->first();
+        if (!$like) {
+            $category->likes()->create([
+                'user_id' => $user->id,
+                'type' => 'like',
+            ]);
+        }
+
+        $likesCount = $category->likes()->where('type', 'like')->count();
+        $dislikesCount = $category->likes()->where('type', 'dislike')->count();
+        $isLiked = $category->likes()->where('user_id', $user->id)->where('type', 'like')->exists();
+        $isDisliked = $category->likes()->where('user_id', $user->id)->where('type', 'dislike')->exists();
+
         return $this->successResponse([
-            'category' => $category,
-            'likes_count' => $category->likers->where('pivot.type', 'like')->count(),
-            'dislikes_count' => $category->likers->where('pivot.type', 'dislike')->count(),
-            'is_liked' => true,
-            'is_disliked' => false,
+            'id' => $category->id,
+            'likes_count' => $likesCount,
+            'dislikes_count' => $dislikesCount,
+            'is_liked' => $isLiked,
+            'is_disliked' => $isDisliked,
         ], __('messages.category_liked_successfully'), 200);
     }
 
+    // Dislike a category (polymorphic)
     public function dislike($id)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
         $category = Category::findOrFail($id);
-        $user = auth()->user();
         $this->authorize('dislike', $category);
-        $category->likers()->detach($user->id); // Remove any previous like/dislike
-        $category->likers()->attach($user->id, ['type' => 'dislike']);
-        $category = Category::with(['SubCategories', 'likers'])->findOrFail($id);
+
+        $category->likes()->where('user_id', $user->id)->where('type', 'like')->delete();
+
+        $dislike = $category->likes()->where('user_id', $user->id)->where('type', 'dislike')->first();
+        if (!$dislike) {
+            $category->likes()->create([
+                'user_id' => $user->id,
+                'type' => 'dislike',
+            ]);
+        }
+
+        $likesCount = $category->likes()->where('type', 'like')->count();
+        $dislikesCount = $category->likes()->where('type', 'dislike')->count();
+        $isLiked = $category->likes()->where('user_id', $user->id)->where('type', 'like')->exists();
+        $isDisliked = $category->likes()->where('user_id', $user->id)->where('type', 'dislike')->exists();
+
         return $this->successResponse([
-            'category' => $category,
-            'likes_count' => $category->likers->where('pivot.type', 'like')->count(),
-            'dislikes_count' => $category->likers->where('pivot.type', 'dislike')->count(),
-            'is_liked' => false,
-            'is_disliked' => true,
+            'id' => $category->id,
+            'likes_count' => $likesCount,
+            'dislikes_count' => $dislikesCount,
+            'is_liked' => $isLiked,
+            'is_disliked' => $isDisliked,
         ], __('messages.category_disliked_successfully'), 200);
     }
 }

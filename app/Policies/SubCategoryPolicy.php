@@ -31,4 +31,22 @@ class SubCategoryPolicy
     {
         return $user->role === 'Admin';
     }
+
+    /**
+     * Any logged-in user can like a subcategory.
+     */
+    public function like(User $user, SubCategory $subCategory)
+    {
+        return $user !== null;
+    }
+
+
+    /**
+     * Any logged-in user can dislike a subcategory.
+     */
+
+    public function dislike(User $user, SubCategory $subCategory)
+    {
+        return $user !== null;
+    }
 }

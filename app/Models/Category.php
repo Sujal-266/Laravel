@@ -6,6 +6,7 @@ use App\Traits\LikeScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Category extends Model
 {
@@ -28,7 +29,18 @@ class Category extends Model
     }
 
     public function likers(){
-        return $this->belongsToMany(User::class, 'category_user_likes')->withPivot('type');
+        return $this->morphedByMany(
+            User::class,
+            'likeable',
+            'likes',
+            'likeable_id',
+            'user_id',
+        );
+    }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
     }
 
 
