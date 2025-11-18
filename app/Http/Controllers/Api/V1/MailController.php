@@ -11,12 +11,22 @@ use Illuminate\Support\Facades\Mail;
 
 class MailController extends Controller
 {
-    use ApiResponse,ExceptionHandler
-    ;
-  public function sendSampleMail(Request $request)
-  {
-    $recipient = $request->input('email', 'patelsujal266@gmail.com');
-    Mail::to($recipient)->send(new SampleMail());
-    return $this->successResponse(null, 'Sample mail sent successfully.');
-  }
+    use ApiResponse,ExceptionHandler;
+
+
+  public function sendCategoryCreatedMail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'category_name' => 'required|string',
+        ]);
+
+        $categoryData = [
+            'name' => $request->input('category_name'),
+        ];
+
+        Mail::to($request->input('email'))->send(new SampleMail((object)$categoryData));
+
+        return $this->successResponse(null, 'Sample email sent successfully.');
+    }
 }
