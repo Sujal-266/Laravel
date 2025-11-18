@@ -34,15 +34,9 @@ class SubCategory extends Model
         return $this->morphMany(Like::class, 'likeable');
     }
 
-    public function comments(): MorphToMany
+    public function comments()
     {
-        return $this->morphMany(
-            Comment::class,
-            'commentable',
-            'comments',
-            'commentable_id',
-            'user_id'
-        )->withPivot('content')->withTimestamps();
-    }   
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }
 

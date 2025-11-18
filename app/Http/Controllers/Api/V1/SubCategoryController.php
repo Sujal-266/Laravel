@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentRequest;
 use App\Models\SubCategory;
 use App\Traits\ApiResponse;
 use App\Traits\FileManager;
@@ -180,5 +181,25 @@ class SubCategoryController extends Controller
             'is_liked' => $isLiked,
             'is_disliked' => $isDisliked,
         ], __('messages.subcategory_disliked'), 200);
+    }
+
+    public function comment($id, CommentRequest $request){
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+
+        $subcategory = SubCategory::findOrFail($id);
+        $this->authorize('comment', $subcategory);
+        $data = $request->validated();
+        // Create comment
+        $comment = $subcategory->comments()->create([
+            'user_id' => $user->id,
+            'commentable_id' => $subcategory->id,
+            'commentable_type' => SubCategory::class,
+            'content' => $data['content'],
+        ]);
+
+        return $this->successResponse($comment, __('messages.subcategory_commented'), 201);
     }
 }
