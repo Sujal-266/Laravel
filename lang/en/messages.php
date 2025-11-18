@@ -23,4 +23,7 @@ return [
     'file_deleted_successfully' => 'File deleted successfully.',
     'category_liked_successfully' => 'Category liked successfully.',
     'category_disliked_successfully' => 'Category disliked successfully.',
+    'subcategory_liked_successfully' => 'Subcategory liked successfully.',
+    'subcategory_disliked_successfully' => 'Subcategory disliked successfully.',
+    'comment_added_successfully' => 'Comment added successfully.',
 ];

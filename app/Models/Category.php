@@ -43,6 +43,15 @@ class Category extends Model
         return $this->morphMany(Like::class, 'likeable');
     }
 
-
+    public function comments(): MorphToMany
+    {
+        return $this->morphMany(
+            Comment::class,
+            'commentable',
+            'comments',
+            'commentable_id',
+            'user_id'
+        )->withPivot('content')->withTimestamps();
+    }   
 
 }

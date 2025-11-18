@@ -23,6 +23,14 @@ class CategoryPolicy{
     }
 
     /**
+     * Any logged-in user can comment on a category.
+     */
+    public function comment(User $user, Category $category)
+    {
+        return $user !== null;
+    }
+
+    /**
      * Only Admins can create categories.
      */
     public function create(User $user)

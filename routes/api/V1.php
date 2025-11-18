@@ -22,4 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('category/dislike/{id}', [CategoryController::class, 'dislike']);
     Route::post('subcategory/like/{id}', [SubCategoryController::class, 'like']);
     Route::post('subcategory/dislike/{id}', [SubCategoryController::class, 'dislike']);
+    Route::post('category/comment/{id}', [CategoryController::class, 'comment']);
+    Route::post('subcategory/comment/{id}', [SubCategoryController::class, 'comment']);
 });

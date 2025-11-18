@@ -49,4 +49,12 @@ class SubCategoryPolicy
     {
         return $user !== null;
     }
+
+    /**
+     * Any logged-in user can comment on a subcategory.
+     */
+    public function comment(User $user, SubCategory $subCategory)
+    {
+        return $user !== null;
+    }
 }

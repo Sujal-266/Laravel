@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Comment;
 use App\Traits\ApiResponse;
 use App\Traits\FileManager;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\CommentRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Like;
 
 class CategoryController extends Controller
-    // ...existing code...
+
 {
     use ApiResponse, FileManager, AuthorizesRequests;
     public function index(Request $request)
@@ -201,5 +203,26 @@ class CategoryController extends Controller
             'is_liked' => $isLiked,
             'is_disliked' => $isDisliked,
         ], __('messages.category_disliked_successfully'), 200);
+    }
+
+    public function comment($id, CommentRequest $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+        $category = Category::findOrFail($id);
+        $this->authorize('comment', $category);
+
+        $validated = $request->validated();
+        $comment = Comment::create([
+            'user_id' => $user->id,
+            'commentable_id' => $category->id,
+            'commentable_type' => Category::class,
+            'content' => $validated['content'],
+        ]);
+
+        return $this->successResponse($comment, __('messages.comment_added_successfully'), 201);
+
     }
 }
