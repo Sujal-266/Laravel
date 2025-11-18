@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\SubCategoryController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FileController;
 
+// Public routes
 Route::post('users/register', [AuthController::class, 'register']);
 Route::post('users/login', [AuthController::class, 'login']);
 
@@ -14,14 +15,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('subcategories', SubCategoryController::class);
     Route::post('users/logout', [AuthController::class, 'logout']);
+
+    // File management routes
     Route::post('files/upload', [FileController::class, 'uploadFile']);
     Route::delete('files/delete', [FileController::class, 'fileDestroy']);
-    Route::post('categories/update/{id}', [CategoryController::class, 'update']);
-    Route::post('subcategories/update/{id}', [SubCategoryController::class, 'update']);
-    Route::post('category/like/{id}', [CategoryController::class, 'like']);
-    Route::post('category/dislike/{id}', [CategoryController::class, 'dislike']);
-    Route::post('subcategory/like/{id}', [SubCategoryController::class, 'like']);
-    Route::post('subcategory/dislike/{id}', [SubCategoryController::class, 'dislike']);
+
+    // Categories routes
+    Route::post('category/{id}/update', [CategoryController::class, 'update']);
+    Route::post('category/{id}/like', [CategoryController::class, 'like']);
+    Route::post('category/{id}/dislike', [CategoryController::class, 'dislike']);
     Route::post('category/{id}/comment', [CategoryController::class, 'comment']);
+    
+    // SubCategories routes
+    Route::post('subcategory/{id}/update', [SubCategoryController::class, 'update']);
+    Route::post('subcategory/{id}/like', [SubCategoryController::class, 'like']);
+    Route::post('subcategory/{id}/dislike', [SubCategoryController::class, 'dislike']);
     Route::post('subcategory/{id}/comment', [SubCategoryController::class, 'comment']);
 });
