@@ -10,23 +10,23 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CategoryCreatedMail extends Mailable
+class CategoryCreatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
-     * The category instance.
+     * The category ID.
      *
-     * @var \App\Models\Category
+     * @var int
      */
-    public Category $category;
+    public int $categoryId;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Category $category)
+    public function __construct(int $categoryId)
     {
-        $this->category = $category;
+        $this->categoryId = $categoryId;
     }
 
     /**
@@ -44,9 +44,10 @@ class CategoryCreatedMail extends Mailable
      */
     public function content(): Content
     {
+        $category = Category::find($this->categoryId);
         return new Content(
             view: 'emails.category_created',
-            with: ['category' => $this->category]
+            with: ['category' => $category]
         );
     }
 

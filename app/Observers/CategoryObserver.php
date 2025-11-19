@@ -14,9 +14,13 @@ class CategoryObserver
      */
     public function created(Category $category): void
     {
+        \Log::info('Observer debug', [
+            'category_id' => $category->id,
+            'category_exists' => Category::find($category->id) !== null
+        ]);
         $users = User::all();
         foreach ($users as $user) {
-            Mail::to($user->email)->send(new CategoryCreatedMail($category));
+            Mail::to($user->email)->queue((new CategoryCreatedMail($category->id))->afterCommit());
         }
     }
 

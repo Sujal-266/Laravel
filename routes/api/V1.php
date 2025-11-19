@@ -11,7 +11,6 @@ use App\Http\Controllers\Api\V1\MailController;
 // Public routes
 Route::post('users/register', [AuthController::class, 'register']);
 Route::post('users/login', [AuthController::class, 'login']);
-Route::post('send-sample-mail', [MailController::class, 'sendSampleMail']);
 
 // Protected route
 Route::middleware('auth:sanctum')->group(function () {
@@ -35,6 +34,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('subcategory/{id}/dislike', [SubCategoryController::class, 'dislike']);
     Route::post('subcategory/{id}/comment', [SubCategoryController::class, 'comment']);
 
-    //mail route
-    Route::post('send-sample-mail', [MailController::class, 'sendSampleMail']);
 });

@@ -61,10 +61,11 @@ class Handler extends ExceptionHandler
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         if ($request->expectsJson() || $request->is('api/*')) {
-            return response()->json([
+            $data = [
                 'status' => false,
                 'message' => __('messages.unauthenticated'),
-            ], 401);
+            ];
+            return response()->make(json_encode($data), 401, ['Content-Type' => 'application/json']);
         }
         // For non-API requests, abort with 401 and message
         abort(401, __('messages.unauthenticated'));
