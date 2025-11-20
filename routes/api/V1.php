@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\V1\MailController;
 // Public routes
 Route::post('users/register', [AuthController::class, 'register']);
 Route::post('users/login', [AuthController::class, 'login']);
+Route::get('/test-error-log', function () {
+    \App\Traits\ErrorManager::registerError('Test error', __FILE__, __LINE__, __FILE__);
+    return 'Error log tested';
+});
 
 // Protected route
 Route::middleware('auth:sanctum')->group(function () {

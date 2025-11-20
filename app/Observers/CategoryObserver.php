@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Category;
 use App\Models\User;
 use App\Mail\CategoryCreatedMail;
+use App\Traits\ErrorManager;
 use Illuminate\Support\Facades\Mail;
 
 class CategoryObserver
@@ -20,7 +21,16 @@ class CategoryObserver
         ]);
         $users = User::all();
         foreach ($users as $user) {
-            Mail::to($user->email)->queue((new CategoryCreatedMail($category->id))->afterCommit());
+            try {
+                Mail::to($user->email)->queue((new CategoryCreatedMail($category->id))->afterCommit());
+            } catch (\Throwable $th) {
+                ErrorManager::registerError(
+                    $th->getMessage(),
+                    __FILE__,
+                    $th->getLine(),
+                    $th->getFile()
+                );
+            }
         }
     }
 

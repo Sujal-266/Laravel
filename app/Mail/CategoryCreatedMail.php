@@ -44,11 +44,25 @@ class CategoryCreatedMail extends Mailable implements ShouldQueue
      */
     public function content(): Content
     {
-        $category = Category::find($this->categoryId);
-        return new Content(
-            view: 'emails.category_created',
-            with: ['category' => $category]
-        );
+        try {
+            $category = Category::find($this->categoryId);
+            return new Content(
+                view: 'emails.category_created',
+                with: ['category' => $category]
+            );
+        } catch (\Throwable $th) {
+            \App\Traits\ErrorManager::registerError(
+                $th->getMessage(),
+                __FILE__,
+                $th->getLine(),
+                $th->getFile()
+            );
+            // Optionally, return a fallback view or handle gracefully
+            return new Content(
+                view: 'emails.category_created',
+                with: ['category' => null]
+            );
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Traits\ApiResponse;
+use App\Traits\ErrorManager;
 use App\Traits\FileManager;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -224,5 +225,16 @@ class CategoryController extends Controller
 
         return $this->successResponse($comment, __('messages.comment_added_successfully'), 201);
 
+    }
+
+    // Test error logging
+    public function testErrorLog(){
+        ErrorManager::registerError(
+            'Test error message',
+            __FILE__,
+            __LINE__,
+            __FILE__
+        );
+        return $this->successResponse(null, 'Test error logged successfully');
     }
 }
