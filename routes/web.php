@@ -22,6 +22,7 @@ Route::get('/login', function () {
 Route::post('/login', [App\Http\Controllers\Web\UserController::class, 'login'])->name('login');
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('/livewire-test', [App\Http\Controllers\Web\TestController::class, 'testLivewire'])->name('livewire-test');
     Route::get('dashboard', [App\Http\Controllers\Web\DashboardController::class, 'show'])->name('dashboard');
     Route::get('users', [App\Http\Controllers\Web\UserController::class, 'show'])->name('users');
     Route::post('logout', [App\Http\Controllers\Web\UserController::class, 'logout'])->name('logout');

@@ -19,5 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Livewire\Livewire::component('test-component', \App\Http\Livewire\TestComponent::class);
     }
 }
