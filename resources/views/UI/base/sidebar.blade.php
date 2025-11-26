@@ -4,6 +4,7 @@
         <ul class="nav side-menu">
             <li><a href={{ route('dashboard') }}> <i class="fa fa-home"></i> Dashboard</a></li>
             <li><a href={{ route('users') }}> <i class="fa fa-user"></i> Users</a></li>
+            <li><a href={{ route('categories.index') }}> <i class="fa fa-folder"></i> Categories</a></li>
         </ul>
     </div>
 

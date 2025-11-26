@@ -25,8 +25,10 @@ class UserController extends Controller
 
     public function show(Request $request)
     {
+        $users = User::latest()->get();
         return view('UI.users', [
             'page_title' => 'Users',
+            'users' => $users,
         ]);
     }
 
