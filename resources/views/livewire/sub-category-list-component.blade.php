@@ -15,7 +15,11 @@
                     <td>{{ $subCategory->name }}</td>
                     <td>
                         <a href="{{ route('subcategories.edit', ['categoryId' => $categoryId, 'subCategoryId' => $subCategory->id]) }}" class="btn btn-primary btn-sm">Edit</a>
-                        <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete this subcategory?')) { window.livewire.find('sub-category-list-component')?.deleteSubCategoryDirect({{ $subCategory->id }}); }">Delete</button>
+                        <form action="{{ route('subcategories.destroy', ['categoryId' => $categoryId, 'subCategoryId' => $subCategory->id]) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this subcategory?')">Delete</button>
+                        </form>
                         <a href="{{ route('subcategories.show', ['categoryId' => $categoryId, 'subCategoryId' => $subCategory->id]) }}" class="btn btn-info btn-sm">View</a>
                     </td>
                 </tr>

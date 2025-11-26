@@ -9,7 +9,11 @@
         @endif
         <div class="mt-3">
             <a href="{{ route('subcategories.edit', ['categoryId' => $subCategory->parent_category_id, 'subCategoryId' => $subCategory->id]) }}" class="btn btn-primary">Edit</a>
-            <button class="btn btn-danger" onclick="if(confirm('Delete this subcategory?')) { window.livewire.find('sub-category-list-component')?.deleteSubCategoryDirect({{ $subCategory->id }}); }">Delete</button>
+            <form action="{{ route('subcategories.destroy', ['categoryId' => $subCategory->parent_category_id, 'subCategoryId' => $subCategory->id]) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this subcategory?')">Delete</button>
+            </form>
         </div>
     </div>
     <!-- Add more subcategory details here if needed -->
